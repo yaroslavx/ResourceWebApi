@@ -15,4 +15,15 @@ public class resourseService : ICustomResourseService
     {
         return _resourses[id];
     }
+
+    public Resourse UpsertResourse(Resourse resourse)
+    {
+        _resourses[resourse.Id] = resourse;
+        return _resourses[resourse.Id];
+    }
+
+    public void DeleteResourse(Guid id)
+    {
+        _resourses.Remove(id);
+    }
 }

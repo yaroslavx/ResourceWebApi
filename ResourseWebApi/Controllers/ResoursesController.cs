@@ -67,14 +67,28 @@ public class ResoursesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult UpdateResourse(Guid id, UpsertResourseRequest request)
+    public IActionResult UpsertResourse(Guid id, UpsertResourseRequest request)
     {
-        return Ok(request);
+        var resourse = new Resourse(
+            id,
+            request.Name,
+            request.Description,
+            request.StartDateTime,
+            request.EndDateTime,
+            DateTime.UtcNow,
+            request.Primary,
+            request.Secondary
+        );
+
+        Resourse response = _resourseService.UpsertResourse(resourse);
+
+        return Ok(response);
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeleteResourse(Guid id)
     {
-        return Ok(id);
+        _resourseService.DeleteResourse(id);
+        return NoContent();
     }
 }
