@@ -1,4 +1,6 @@
+using ErrorOr;
 using ResourseWebApi.Models;
+using ResourseWebApi.ServiceErrors;
 
 namespace ResourseWebApi.Services.Resourses;
 
@@ -11,9 +13,14 @@ public class resourseService : ICustomResourseService
         _resourses.Add(resourse.Id, resourse);
     }
 
-    public Resourse GetResourse(Guid id)
+    public ErrorOr<Resourse> GetResourse(Guid id)
     {
-        return _resourses[id];
+        if (_resourses.TryGetValue(id, out var resourse))
+        {
+            return resourse;
+        }
+
+        return Errors.Resourse.NotFound;
     }
 
     public Resourse UpsertResourse(Resourse resourse)

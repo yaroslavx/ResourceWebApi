@@ -1,6 +1,8 @@
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using ResourseWebApi.Contracts.Resourse;
 using ResourseWebApi.Models;
+using ResourseWebApi.ServiceErrors;
 using ResourseWebApi.Services.Resourses;
 
 namespace ResourseWebApi.Controllers;
@@ -51,7 +53,14 @@ public class ResoursesController : ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetResourse(Guid id)
     {
-        Resourse resourse = _resourseService.GetResourse(id);
+        ErrorOr<Resourse> getResourseResult = _resourseService.GetResourse(id);
+
+        if (getResourseResult.IsError && getResourseResult.FirstError == Errors.Resourse.NotFound)
+        {
+            return NotFound();
+        }
+
+        var resourse = getResourseResult.Value;
 
         var response = new ResourseResponse(
             resourse.Id,
