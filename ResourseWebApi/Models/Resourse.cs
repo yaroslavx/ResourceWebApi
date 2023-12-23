@@ -1,3 +1,5 @@
+using ErrorOr;
+
 namespace ResourseWebApi.Models;
 
 public class Resourse
@@ -11,7 +13,7 @@ public class Resourse
     public List<string> Primary { get; }
     public List<string> Secondary { get; }
 
-    public Resourse(
+    private Resourse(
         Guid id,
         string name,
         string description,
@@ -30,5 +32,26 @@ public class Resourse
         LastModifiedDateTime = lastModifiedDateTime;
         Primary = primary;
         Secondary = secondary;
+    }
+
+    public static ErrorOr<Resourse> Create(
+        string name,
+        string description,
+        DateTime startDateTime,
+        DateTime endDateTime,
+        List<string> primary,
+        List<string> secondary
+    )
+    {
+        return new Resourse(
+            Guid.NewGuid(),
+            name,
+            description,
+            startDateTime,
+            endDateTime,
+            DateTime.UtcNow,
+            primary,
+            secondary
+        );
     }
 }
