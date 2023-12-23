@@ -7,9 +7,7 @@ using ResourseWebApi.Services.Resourses;
 
 namespace ResourseWebApi.Controllers;
 
-[ApiController]
-[Route("[controller]")]
-public class ResoursesController : ControllerBase
+public class ResoursesController : ApiController
 {
     private readonly ICustomResourseService _resourseService;
 
@@ -32,22 +30,12 @@ public class ResoursesController : ControllerBase
             request.Secondary
         );
 
-        _resourseService.CreateResourse(resourse);
+        ErrorOr<Created> createResourseResult = _resourseService.CreateResourse(resourse);
 
-        var response = new ResourseResponse(
-            resourse.Id,
-            resourse.Name,
-            resourse.Description,
-            resourse.StartDateTime,
-            resourse.EndDateTime,
-            resourse.LastModifiedDateTime,
-            resourse.Primary,
-            resourse.Secondary
+        return createResourseResult.Match(
+            created => CreatedAtGetResourse(resourse),
+            errors => Problem(errors)
         );
-        return CreatedAtAction(
-            actionName: nameof(GetResourse),
-            routeValues: new { id = resourse.Id },
-            value: response);
     }
 
     [HttpGet("{id:guid}")]
@@ -55,24 +43,11 @@ public class ResoursesController : ControllerBase
     {
         ErrorOr<Resourse> getResourseResult = _resourseService.GetResourse(id);
 
-        if (getResourseResult.IsError && getResourseResult.FirstError == Errors.Resourse.NotFound)
-        {
-            return NotFound();
-        }
-
-        var resourse = getResourseResult.Value;
-
-        var response = new ResourseResponse(
-            resourse.Id,
-            resourse.Name,
-            resourse.Description,
-            resourse.StartDateTime,
-            resourse.EndDateTime,
-            resourse.LastModifiedDateTime,
-            resourse.Primary,
-            resourse.Secondary
+        return getResourseResult.Match(
+            resourse => Ok(MapResourseResponse(resourse)),
+            errors => Problem(errors)
         );
-        return Ok(response);
+
     }
 
     [HttpPut("{id:guid}")]
@@ -89,15 +64,43 @@ public class ResoursesController : ControllerBase
             request.Secondary
         );
 
-        Resourse response = _resourseService.UpsertResourse(resourse);
+        ErrorOr<UpsertedResourse> upserteResourseResult = _resourseService.UpsertResourse(resourse);
 
-        return Ok(response);
+        return upserteResourseResult.Match(
+            upserted => upserted.IsNewlyCreated ? CreatedAtGetResourse(resourse) : NoContent(),
+            errors => Problem(errors)
+        );
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeleteResourse(Guid id)
     {
-        _resourseService.DeleteResourse(id);
-        return NoContent();
+        ErrorOr<Deleted> deleteResourseResult = _resourseService.DeleteResourse(id);
+        return deleteResourseResult.Match(
+            deleted => NoContent(),
+            errors => Problem(errors)
+        );
+    }
+
+    private static ResourseResponse MapResourseResponse(Resourse resourse)
+    {
+        return new ResourseResponse(
+            resourse.Id,
+            resourse.Name,
+            resourse.Description,
+            resourse.StartDateTime,
+            resourse.EndDateTime,
+            resourse.LastModifiedDateTime,
+            resourse.Primary,
+            resourse.Secondary
+        );
+    }
+
+    private CreatedAtActionResult CreatedAtGetResourse(Resourse resourse)
+    {
+        return CreatedAtAction(
+                    actionName: nameof(GetResourse),
+                    routeValues: new { id = resourse.Id },
+                    value: MapResourseResponse(resourse));
     }
 }

@@ -8,9 +8,11 @@ public class resourseService : ICustomResourseService
 {
     private static readonly Dictionary<Guid, Resourse> _resourses = new();
 
-    public void CreateResourse(Resourse resourse)
+    public ErrorOr<Created> CreateResourse(Resourse resourse)
     {
         _resourses.Add(resourse.Id, resourse);
+
+        return Result.Created;
     }
 
     public ErrorOr<Resourse> GetResourse(Guid id)
@@ -23,14 +25,16 @@ public class resourseService : ICustomResourseService
         return Errors.Resourse.NotFound;
     }
 
-    public Resourse UpsertResourse(Resourse resourse)
+    public ErrorOr<UpsertedResourse> UpsertResourse(Resourse resourse)
     {
+        var IsNewlyCreated = !_resourses.ContainsKey(resourse.Id);
         _resourses[resourse.Id] = resourse;
-        return _resourses[resourse.Id];
+        return new UpsertedResourse(IsNewlyCreated);
     }
 
-    public void DeleteResourse(Guid id)
+    public ErrorOr<Deleted> DeleteResourse(Guid id)
     {
         _resourses.Remove(id);
+        return Result.Deleted;
     }
 }

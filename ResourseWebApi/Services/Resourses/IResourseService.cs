@@ -5,8 +5,8 @@ namespace ResourseWebApi.Services.Resourses;
 
 public interface ICustomResourseService
 {
-    void CreateResourse(Resourse resourse);
+    ErrorOr<Created> CreateResourse(Resourse resourse);
     ErrorOr<Resourse> GetResourse(Guid id);
-    Resourse UpsertResourse(Resourse resourse);
-    void DeleteResourse(Guid id);
+    ErrorOr<UpsertedResourse> UpsertResourse(Resourse resourse);
+    ErrorOr<Deleted> DeleteResourse(Guid id);
 }
