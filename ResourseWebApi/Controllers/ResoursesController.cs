@@ -4,27 +4,28 @@ using ResourseWebApi.Contracts.Resourse;
 namespace ResourseWebApi.Controllers;
 
 [ApiController]
+[Route("[controller]")]
 public class ResoursesController : ControllerBase
 {
-    [HttpPost("/resourse")]
+    [HttpPost("")]
     public IActionResult CreateResourse(CreateResourseRequest request)
     {
         return Ok(request);
     }
 
-    [HttpGet("/resourse/{id:guid}")]
+    [HttpGet("{id:guid}")]
     public IActionResult GetResourse(Guid id)
     {
         return Ok(id);
     }
 
-    [HttpPut("/resourse/{id:guid}")]
+    [HttpPut("{id:guid}")]
     public IActionResult UpsertResourse(Guid id, UpsertResourseRequest request)
     {
         return Ok(request);
     }
 
-    [HttpDelete("/resourse/{id:guid}")]
+    [HttpDelete("{id:guid}")]
     public IActionResult DeleteResourse(Guid id)
     {
         return Ok(id);
